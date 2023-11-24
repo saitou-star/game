@@ -1,8 +1,13 @@
 import tkinter
 import cv2 # 画像や動画を解析して情報を抽出（コンピュータービジョンライブラリ）
+import pokeapi
 
 # 読み込ませる画像のファイルパス
-FILE_PATH = "face.png"
+num = input("整数を入力(1～1000) >>")
+pk = pokeapi.get_pokemon(num)
+
+FILE_PATH = pk.img
+# pokeImg = tkinter.Photoimage(file=FILE_PATH)
 
 # 画像のサイズ
 IMAGE_WIDTH = 32
