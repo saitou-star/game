@@ -1,5 +1,5 @@
 import tkinter
-import cv2
+import cv2 # 画像や動画を解析して情報を抽出（コンピュータービジョンライブラリ）
 
 # 読み込ませる画像のファイルパス
 FILE_PATH = "face.png"
