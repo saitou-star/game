@@ -1,9 +1,11 @@
 import pygame
 import sys
 import random
-# pythonで敵をよけて進むゲームを作って,
-# 敵の数を減らしたい,
-# リプレイできるようにするには？,
+
+# ゾンビをよけるゲーム、敵の数を減らす、リプレイできるようにする:リプレイ＝スペース⇒画面クリック
+# 敵のspeedをランダムでバラバラにしたい、敵の画像を2種類のゾンビ、他仕掛けを作る
+
+
 
 # pygameの初期化
 pygame.init()
@@ -14,10 +16,6 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("ウォーキングデッド")
 
-# 色の定義
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
 
 # プレイヤーの初期位置
 player_width = 50
@@ -31,16 +29,14 @@ player_speed = 7
 # 敵の初期設定
 enemy_width = 50
 enemy_height = 50
-enemy_speed = 6
-max_enemies = 10
+max_enemies = 12
 enemy_list = []
 
-# 敵を作成する関数
-def create_enemy():
-    if len(enemy_list) < max_enemies:
-        enemy_x = random.randint(0, screen_width - enemy_width)
-        enemy_y = 0
-        enemy_list.append([enemy_x, enemy_y])
+# 2つの敵画像を読み込む
+enemy_images = [
+    pygame.image.load("zonbi.png"),
+    pygame.image.load("zonbi2.png")
+]
 
 # ゲームの初期化
 def initialize_game():
@@ -48,14 +44,12 @@ def initialize_game():
     player_x = (screen_width - player_width) // 2
     player_y = screen_height - player_height - 10
     enemy_list = []
+
 initialize_game()
 
 # ゲームオーバーのメッセージ表示
 font = pygame.font.Font(None, 36)
-def display_game_over():
-    game_over_text = font.render("Game Over ⇒ スペースを押してリプレイ", True, black)
-    screen.blit(game_over_text, ((screen_width - game_over_text.get_width()) // 2, (screen_height - game_over_text.get_height()) // 2))
-    pygame.display.flip()
+game_over_text = font.render("Game Over ⇒ クリックしてリプレイ", True, (0, 0, 0))
 
 
 # ゲームループ
@@ -68,18 +62,25 @@ while not game_over:
             pygame.quit()
             sys.exit()
 
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            initialize_game()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if game_over:
+                initialize_game()
+                game_over = False
 
     keys = pygame.key.get_pressed()
     player_x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * player_speed
 
     # 敵の生成
-    create_enemy()
+    if len(enemy_list) < max_enemies:
+        enemy_x = random.randint(0, screen_width - enemy_width)
+        enemy_y = 0
+        enemy_speed = random.uniform(1, 5)
+        enemy_image = random.choice(enemy_images)  # enemy画像をランダムに選択
+        enemy_list.append([enemy_x, enemy_y, enemy_speed, enemy_image])
 
     # 敵の移動
     for enemy in enemy_list:
-        enemy[1] += enemy_speed
+        enemy[1] += enemy[2]  # 速度を考慮して移動
 
     # 敵が画面外に出たら削除
     enemy_list = [enemy for enemy in enemy_list if enemy[1] < screen_height]
@@ -95,13 +96,13 @@ while not game_over:
             game_over = True
 
     # 画面の描画
-    screen.fill(white)
-    pygame.draw.rect(screen, black, [player_x, player_y, player_width, player_height])
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (0, 0, 0), [player_x, player_y, player_width, player_height])
     for enemy in enemy_list:
-        pygame.draw.rect(screen, red, [enemy[0], enemy[1], enemy_width, enemy_height])
+        screen.blit(enemy[3], (enemy[0], enemy[1]))  # 敵画像を描画
 
     if game_over:
-        display_game_over()
+        screen.blit(game_over_text, ((screen_width - game_over_text.get_width()) // 2, (screen_height - game_over_text.get_height()) // 2))
 
     pygame.display.flip()
 
