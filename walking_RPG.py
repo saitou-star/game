@@ -26,12 +26,12 @@ class Player:
         self.rect.y = y
 
     def attack(self):
-        return random.randint(1, 10)
+        return random.randint(1, 6)
 
     def cast_spell(self):
         if self.mp >= 5:
             self.mp -= 5
-            return random.randint(5, 15)
+            return random.randint(4, 13)
         else:
             print("銃弾が足りません!! 通常攻撃します。")
             return self.attack()
