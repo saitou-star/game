@@ -118,21 +118,30 @@ while True:
                     print(f"{player.name}が{target_enemy.name}に{damage}のダメージを与えました！")
             elif item_button.collidepoint(x, y):
                 for player in players:
+                    # 変動前のHP表示を消去
+                    screen.fill((0, 0, 0), (20, 20 + players.index(player) * 40, WIDTH, 40))
                     heal = player.use_item()
                     player.hp += heal
                     print(f"{player.name}が{heal}の回復アイテムを使用し、HPが回復しました")
-            elif escape_button.collidepoint(x, y):
-                print("逃げる！")
 
-    # プレイヤーのHPが0以下の場合
-    for player in players:
-        if player.hp <= 0:
-            game_over_text = font.render("Game Over!", True, RED)
-            screen.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2 - 50))
-            pygame.display.flip()
-            pygame.time.wait(5000)  # 5秒間メッセージ表示後に終了
-            pygame.quit()
-            sys.exit()
+            # 敵が反撃する
+            enemy_damage = random.randint(1, 8)
+            target_player = random.choice(players)
+            target_player.hp -= enemy_damage
+            print(f"{target_enemy.name}が{target_player.name}に{enemy_damage}のダメージを与えました！")
+            
+            # プレイヤーのHPが0以下の場合
+            if target_player.hp <= 0:
+                game_over_text = font.render("Game Over!", True, RED)
+                screen.blit(game_over_text, (WIDTH // 2 - 100, HEIGHT // 2 - 50))
+                pygame.display.flip()
+                pygame.time.wait(5000)  # 5秒間メッセージ表示後に終了
+                pygame.quit()
+                sys.exit()
+
+            # 変動前のプレイヤーのHP表示を消去
+            screen.fill((0, 0, 0), (20, 20 + players.index(target_player) * 40, WIDTH, 40))
+
 
     # 敵のHPが0以下の場合
     for enemy in enemies:
@@ -142,16 +151,19 @@ while True:
     # 背景を描画
     screen.blit(background, (0, 0))
 
-    # プレイヤーの画像表示
+    # プレイヤーの画像表示と名前・HPの表示
     for player in players:
         screen.blit(player.image, (player.rect.x, player.rect.y))
+        # 名前とHPの表示
+        player_info_text = font.render(f"{player.name} - HP: {player.hp}", True, WHITE)
+        screen.blit(player_info_text, (20, 20 + players.index(player) * 40))
+
     # 敵の画像表示と位置調整
     for enemy in enemies:
         # 敵が画面外にはみ出さないように位置を制限
         enemy.rect.x = max(0, min(WIDTH - enemy.rect.width, enemy.rect.x))
         enemy.rect.y = max(0, min(HEIGHT - enemy.rect.height, enemy.rect.y))
         screen.blit(enemy.image, (enemy.rect.x, enemy.rect.y))
-
 
     # コマンドボタンの表示
     button_width, button_height = 150, 50
