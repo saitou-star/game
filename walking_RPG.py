@@ -37,7 +37,7 @@ class Player:
             return self.attack()
 
     def use_item(self):
-        return random.randint(1, 5)
+        return random.randint(5, 10)
 
 # プレイヤーと敵の数をランダムに決定
 num_players = 2
@@ -104,12 +104,25 @@ while True:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # マウスクリックでコマンドを実行
             x, y = event.pos
-            for player in players:
-                if player.rect.collidepoint(x, y):
+            if attack_button.collidepoint(x, y):
+                for player in players:
                     damage = player.attack()
                     target_enemy = random.choice(enemies)
                     target_enemy.hp -= damage
                     print(f"{player.name}が{target_enemy.name}に{damage}のダメージを与えました！")
+            elif magic_button.collidepoint(x, y):
+                for player in players:
+                    damage = player.cast_spell()
+                    target_enemy = random.choice(enemies)
+                    target_enemy.hp -= damage
+                    print(f"{player.name}が{target_enemy.name}に{damage}のダメージを与えました！")
+            elif item_button.collidepoint(x, y):
+                for player in players:
+                    heal = player.use_item()
+                    player.hp += heal
+                    print(f"{player.name}が{heal}の回復アイテムを使用し、HPが回復しました")
+            elif escape_button.collidepoint(x, y):
+                print("逃げる！")
 
     # プレイヤーのHPが0以下の場合
     for player in players:
@@ -141,20 +154,25 @@ while True:
 
 
     # コマンドボタンの表示
-    attack_button = pygame.draw.rect(screen, RED, (50, 450, 150, 50))
-    magic_button = pygame.draw.rect(screen, RED, (250, 450, 150, 50))
-    item_button = pygame.draw.rect(screen, RED, (450, 450, 150, 50))
-    escape_button = pygame.draw.rect(screen, RED, (650, 450, 150, 50))
+    button_width, button_height = 150, 50
+    button_margin = 20
+
+    attack_button = pygame.draw.rect(screen, RED, (50, 450, button_width, button_height))
+    magic_button = pygame.draw.rect(screen, RED, (attack_button.right + button_margin, 450, button_width, button_height))
+    item_button = pygame.draw.rect(screen, RED, (magic_button.right + button_margin, 450, button_width, button_height))
+    escape_button = pygame.draw.rect(screen, RED, (item_button.right + button_margin, 450, button_width, button_height))
 
     # ボタンにラベルを表示
     attack_label = font.render("Attack", True, WHITE)
     magic_label = font.render("Handgun", True, WHITE)
     item_label = font.render("Item", True, WHITE)
     escape_label = font.render("Escape", True, WHITE)
-    screen.blit(attack_label, (80, 465))
-    screen.blit(magic_label, (280, 465))
-    screen.blit(item_label, (480, 465))
-    screen.blit(escape_label, (680, 465))
+
+    # ラベルの描画位置調整
+    screen.blit(attack_label, (attack_button.centerx - attack_label.get_width() // 2, attack_button.centery - attack_label.get_height() // 2))
+    screen.blit(magic_label, (magic_button.centerx - magic_label.get_width() // 2, magic_button.centery - magic_label.get_height() // 2))
+    screen.blit(item_label, (item_button.centerx - item_label.get_width() // 2, item_button.centery - item_label.get_height() // 2))
+    screen.blit(escape_label, (escape_button.centerx - escape_label.get_width() // 2, escape_button.centery - escape_label.get_height() // 2))
 
     # 画面を更新
     pygame.display.flip()
